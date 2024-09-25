@@ -3,11 +3,23 @@ import { WebViewer } from "@rerun-io/web-viewer";
 import { nanoid } from "nanoid";
 import { ref, onMounted } from "vue";
 const rerun = ref<HTMLElement | null>(null);
+const ws = ref<WebSocket | null>(null);
 onMounted(() => {
   if (rerun.value) {
     const rrdUrl = "ws://localhost:4321";
     const viewer = new WebViewer();
     viewer.start(rrdUrl, rerun.value, { width: "80vw", height: "100vh" });
+
+    ws.value = new WebSocket("ws://localhost:4322");
+    ws.value.onopen = () => {
+      console.log("connected");
+    };
+    ws.value.onmessage = (event) => {
+      console.log(event.data);
+    };
+    ws.value.onclose = () => {
+      console.log("disconnected");
+    };
   }
 });
 
@@ -47,6 +59,12 @@ const handle_remove = (index: number) => {
 const handle_insert = (index: number, node: number) => {
   nodes.value.splice(index, 0, { node: node, id: nanoid() });
 };
+const handle_start = () => {
+  console.log(nodes.value);
+  if (ws.value) {
+    ws.value.send(JSON.stringify(nodes.value));
+  }
+};
 </script>
 
 <template>
@@ -55,7 +73,7 @@ const handle_insert = (index: number, node: number) => {
     <div class=" overflow-auto flex-1" style="height: 100vh;">
       
       <div class=" flex flex-col justify-center items-center " style="">
-        <button class="btn btn-primary btn-lg m-4">Start</button>
+        <button class="btn btn-primary btn-lg m-4" @click="handle_start()">Start</button>
 
         <TransitionGroup name="list">
           <div v-for="(node, i) in nodes" :key="node.id" class="flex flex-col items-center">
