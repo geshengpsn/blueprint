@@ -68,7 +68,7 @@ const handle_start = () => {
 </script>
 
 <template>
-  <div class="flex">
+  <div class="flex" data-theme="dark" >
     <div ref="rerun"></div>
     <div class=" overflow-auto flex-1" style="height: 100vh;">
       
