@@ -75,17 +75,31 @@ const handle_start = () => {
   console.log(nodes.value);
   if (ws.value) {
     ws.value.send(JSON.stringify(nodes.value));
-    notify.value = "Operation Done!";
+    notify.value = "Start";
   } else {
     notify.value = "No Connection!";
   }
 };
 
+const is_started = ref(false);
+
 const handle_record = () => {
   console.log(nodes.value);
   if (ws1.value) {
     ws1.value.send("1");
-    notify.value = "Operation Done!";
+    notify.value = "Start Record";
+    is_started.value = true
+  } else {
+    notify.value = "No Connection!";
+  }
+};
+
+const handle_stop_record = () => {
+  console.log(nodes.value);
+  if (ws1.value) {
+    ws1.value.send("0");
+    notify.value = "Stop Record";
+    is_started.value = false
   } else {
     notify.value = "No Connection!";
   }
@@ -98,7 +112,8 @@ const notify = ref("");
     <div ref="rerun"></div>
     <div class=" overflow-auto flex-1" style="height: 100vh;">
       <div class="flex justify-between">
-        <button class="btn btn-primary btn-lg m-4" @click="handle_record()">Record Data</button>
+        <button v-if="!is_started" class="btn btn-primary btn-lg m-4" @click="handle_record()">Start Record</button>
+        <button v-else class="btn btn-error btn-lg m-4" @click="handle_stop_record()">Stop Record</button>
         <button class="btn btn-primary btn-lg m-4" @click="handle_start()">Send</button>
       </div>
       <div class=" divider"></div>
@@ -168,7 +183,7 @@ const notify = ref("");
   <div v-if="notify.length !== 0" class="fixed bottom-0 right-0 m-4">
     <div class="card w-96 shadow-xl bg-success">
         <div class="card-body">
-          <h2 class="card-title text-success-content">Operation Done!</h2>
+          <h2 class="card-title text-success-content">{{notify}}</h2>
           <div class="card-actions justify-end">
             <button class="btn btn-primary text-success-content" @click="notify = ''">OK</button>
           </div>
